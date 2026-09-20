@@ -34,6 +34,8 @@ jobs:
       run: |
         cd runtime
         git apply ../runtime-apphost.patch
+        git apply ../0001-RISC-V-Support-SV48-Virtual-Memory-Layout-backport-o.patch
+        git apply ../0002-RISC-V-Put-scalar-stack-args-with-sign-extension-976.patch
         ./build.sh --ci -c Release --cross --arch riscv64
         cp -v artifacts/packages/Release/Shipping/Microsoft.NETCore.App.Host.linux-riscv64.*.nupkg /packages
         cp -v artifacts/packages/Release/Shipping/Microsoft.NETCore.App.Runtime.linux-riscv64.*.nupkg /packages

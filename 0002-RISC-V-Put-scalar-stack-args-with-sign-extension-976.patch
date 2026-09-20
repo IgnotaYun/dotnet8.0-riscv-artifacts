@@ -1,0 +1,31 @@
+From f538cdad5204ff148017ea7e392c72d03d9db2f3 Mon Sep 17 00:00:00 2001
+From: t-mustafin <66252296+t-mustafin@users.noreply.github.com>
+Date: Tue, 30 Jan 2024 15:30:22 +0300
+Subject: [PATCH] [RISC-V] Put scalar stack args with sign extension (#97662)
+
+---
+ src/coreclr/jit/codegenriscv64.cpp | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/coreclr/jit/codegenriscv64.cpp b/src/coreclr/jit/codegenriscv64.cpp
+index df5b47554d8..2e76027e91e 100644
+--- a/src/coreclr/jit/codegenriscv64.cpp
++++ b/src/coreclr/jit/codegenriscv64.cpp
+@@ -4940,6 +4940,14 @@ void CodeGen::genPutArgStk(GenTreePutArgStk* treeNode)
+         instruction storeIns  = ins_Store(slotType);
+         emitAttr    storeAttr = emitTypeSize(slotType);
+ 
++        // When passed in registers or on the stack, integer scalars narrower than XLEN bits
++        // are widened according to the sign of their type up to 32 bits, then sign-extended to XLEN bits.
++        if (EA_SIZE(storeAttr) < EA_PTRSIZE && varTypeUsesIntReg(slotType))
++        {
++            storeAttr = EA_PTRSIZE;
++            storeIns  = INS_sd;
++        }
++
+         // If it is contained then source must be the integer constant zero
+         if (source->isContained())
+         {
+-- 
+2.47.3
+
